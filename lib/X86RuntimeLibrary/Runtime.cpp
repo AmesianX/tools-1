@@ -361,7 +361,7 @@ void call_marker(target_ulong pc) {
 }
 
 void incomplete_marker(target_ulong pc) {
-    printf("Reached incompletly recovered code %#x\n", pc);
+    printf("Reached incompletely recovered code %#x\n", pc);
 
     if (__revgen_detect_library_functions) {
         dosegfault();
@@ -593,6 +593,13 @@ void g_free(void *p) {
 static int default_main(int argc, char **argv) {
     const unsigned STACK_SIZE = 0x100000;
     char *stack = (char *) malloc(STACK_SIZE);
+
+    uint32_t eflags = 0x282;
+
+    myenv.cc_op = CC_OP_EFLAGS;
+    myenv.cc_src = eflags & CFLAGS_MASK;
+    myenv.df = (eflags & DF_MASK) ? -1 : 1;
+    myenv.mflags = eflags & MFLAGS_MASK;
 
     myenv.regs[R_ESP] = (target_ulong)(stack + STACK_SIZE - 0x10);
 
